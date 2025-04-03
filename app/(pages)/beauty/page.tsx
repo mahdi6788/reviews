@@ -1,7 +1,13 @@
-import { PrismaClient, Product } from '@prisma/client';
+import { PrismaClient, Review } from '@prisma/client';
 import ProductCard from '../../components/ProductCard';
 
 const prisma = new PrismaClient();
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  reviews: Review[]; // Replace `any[]` with a specific type if available for reviews
+}
 
 export default async function Beauty() {
   const products = await prisma.product.findMany({
@@ -27,7 +33,7 @@ export default async function Beauty() {
   return <BeautyPage products={products} />;
 }
 
-function BeautyPage({ products }: { products: any[] }) {
+function BeautyPage({ products }: { products: Product[] }) {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Beauty Products</h1>

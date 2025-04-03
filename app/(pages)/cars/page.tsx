@@ -1,8 +1,13 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Review } from '@prisma/client';
 import ProductCard from '../../components/ProductCard';
 
 const prisma = new PrismaClient();
-
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  reviews: Review[]; // Replace `any[]` with a specific type if available for reviews
+}
 export default async function Cars() {
   const products = await prisma.product.findMany({
     where: { category: 'Cars' },
@@ -26,7 +31,7 @@ export default async function Cars() {
   return <CarsPage products={products} />;
 }
 
-function CarsPage({ products }: { products: any[] }) {
+function CarsPage({ products }: { products: Product[] }) {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Cars</h1>
