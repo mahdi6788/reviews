@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../lib/prisma';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    console.log('Received review payload:', body); // Log incoming data
+    console.log('Received review payload:', body);
 
     const { productId, rating, comment, user } = body;
     if (!productId || rating < 1 || rating > 5 || !comment) {
@@ -18,12 +16,10 @@ export async function POST(req: NextRequest) {
       data: { productId, rating, comment, user: user || 'Anonymous' },
     });
 
-    console.log('Review created:', review); // Log created review
+    console.log('Review created:', review);
     return NextResponse.json(review, { status: 201 });
   } catch (error) {
-    console.error('Error creating review:', error); // Log any errors
+    console.error('Error creating review:', error);
     return NextResponse.json({ error: 'Failed to create review' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect(); // Ensure Prisma disconnects
   }
 }
