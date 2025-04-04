@@ -1,45 +1,41 @@
 "use client";
 
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { submitReview } from '../lib/api';
 
 interface ReviewFormProps {
   productId: string;
+  category: string; // Add category to invalidate correct query
 }
 
-export default function ReviewForm({ productId }: ReviewFormProps) {
+export default function ReviewForm({ productId, category }: ReviewFormProps) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+  const queryClient = useQueryClient();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const mutation = useMutation({
+    mutationFn: submitReview,
+    onSuccess: () => {
+      setRating(0);
+      setComment('');
+      queryClient.invalidateQueries({ queryKey: ['products', category] });
+    },
+    onError: (error) => {
+      console.error('Error submitting review:', error);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (rating < 1 || rating > 5 || !comment.trim()) {
-      console.log('Validation failed:', { rating, comment });
-      return;
-    }
+    if (rating < 1 || rating > 5 || !comment.trim()) return;
 
-    console.log('Form submitted, sending request:', { productId, rating, comment });
-
-    try {
-      const res = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, rating, comment, user: 'Anonymous' }),
-      });
-
-      console.log('Fetch response status:', res.status);
-      const data = await res.json();
-      console.log('Fetch response data:', data);
-
-      if (res.ok) {
-        setRating(0);
-        setComment('');
-        window.location.reload();
-      } else {
-        console.error('Submission failed:', data);
-      }
-    } catch (error) {
-      console.error('Fetch error:', error);
-    }
+    mutation.mutate({
+      productId,
+      rating,
+      comment,
+      user: 'Anonymous',
+    });
   };
 
   return (
@@ -64,8 +60,12 @@ export default function ReviewForm({ productId }: ReviewFormProps) {
           rows={4}
         />
       </div>
-      <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-        Submit Review
+      <button
+        type="submit"
+        className="bg-blue-500 text-white p-2 rounded disabled:bg-gray-400"
+        disabled={mutation.isPending}
+      >
+        {mutation.isPending ? 'Submitting...' : 'Submit Review'}
       </button>
     </form>
   );

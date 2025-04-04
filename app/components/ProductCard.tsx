@@ -1,3 +1,4 @@
+// app/components/ProductCard.tsx
 import RatingStars from './RatingStars';
 import ReviewForm from './ReviewForm';
 import { Review } from '@prisma/client';
@@ -7,9 +8,10 @@ interface ProductCardProps {
   name: string;
   description: string;
   reviews: Review[];
+  category: string; // Add category prop
 }
 
-export default function ProductCard({ id, name, description, reviews }: ProductCardProps) {
+export default function ProductCard({ id, name, description, reviews, category }: ProductCardProps) {
   const averageRating =
     reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
 
@@ -36,7 +38,7 @@ export default function ProductCard({ id, name, description, reviews }: ProductC
         )}
       </div>
       <div className="mt-4">
-        <ReviewForm productId={id} />
+        <ReviewForm productId={id} category={category} />
       </div>
     </div>
   );
