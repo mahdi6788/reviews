@@ -1,4 +1,3 @@
-// app/components/ProductCard.tsx
 import RatingStars from './RatingStars';
 import ReviewForm from './ReviewForm';
 import { Review } from '@prisma/client';

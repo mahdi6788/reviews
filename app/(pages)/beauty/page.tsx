@@ -1,13 +1,15 @@
-import { PrismaClient, Review } from '@prisma/client';
+import { Review } from '@prisma/client';
 import ProductCard from '../../components/ProductCard';
+import { prisma } from '@/app/lib/prisma';
 
-const prisma = new PrismaClient();
 interface Product {
   id: string;
   name: string;
   description: string;
-  reviews: Review[]; // Replace `any[]` with a specific type if available for reviews
+  reviews: Review[]; 
 }
+
+export const revalidate = 0; // Force fresh data
 
 export default async function Beauty() {
   const products = await prisma.product.findMany({
@@ -15,7 +17,7 @@ export default async function Beauty() {
     include: { reviews: true },
   });
 
-  // Seed some initial data if empty
+  // Seed some initial data
   if (products.length === 0) {
     await prisma.product.createMany({
       data: [

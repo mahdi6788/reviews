@@ -1,13 +1,15 @@
-import { PrismaClient, Review } from '@prisma/client';
+import { Review } from '@prisma/client';
 import ProductCard from '../../components/ProductCard';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/app/lib/prisma';
 interface Product {
   id: string;
   name: string;
   description: string;
-  reviews: Review[]; // Replace `any[]` with a specific type if available for reviews
+  reviews: Review[];
 }
+
+export const revalidate = 0; // Force fresh data
+
 export default async function Cars() {
   const products = await prisma.product.findMany({
     where: { category: 'Cars' },
