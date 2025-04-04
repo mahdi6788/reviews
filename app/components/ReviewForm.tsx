@@ -12,18 +12,33 @@ export default function ReviewForm({ productId }: ReviewFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (rating < 1 || rating > 5 || !comment.trim()) return;
+    if (rating < 1 || rating > 5 || !comment.trim()) {
+      console.log('Validation failed:', { rating, comment });
+      return;
+    }
 
-    const res = await fetch('/api/reviews', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, rating, comment, user: 'Anonymous' }),
-    });
+    console.log('Form submitted, sending request:', { productId, rating, comment });
 
-    if (res.ok) {
-      setRating(0);
-      setComment('');
-      window.location.reload(); // Simple refresh; use SWR or React Query for better UX
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, rating, comment, user: 'Anonymous' }),
+      });
+
+      console.log('Fetch response status:', res.status);
+      const data = await res.json();
+      console.log('Fetch response data:', data);
+
+      if (res.ok) {
+        setRating(0);
+        setComment('');
+        window.location.reload();
+      } else {
+        console.error('Submission failed:', data);
+      }
+    } catch (error) {
+      console.error('Fetch error:', error);
     }
   };
 

@@ -15,7 +15,7 @@ export default async function Beauty() {
     include: { reviews: true },
   });
 
-  // Seed some initial data if empty (optional)
+  // Seed some initial data if empty
   if (products.length === 0) {
     await prisma.product.createMany({
       data: [
