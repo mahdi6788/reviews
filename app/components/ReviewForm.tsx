@@ -3,14 +3,16 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { submitReview } from '../lib/api';
+import { FaStar, FaRegStar } from 'react-icons/fa';
 
 interface ReviewFormProps {
   productId: string;
-  category: string; // Add category to invalidate correct query
+  category: string;
 }
 
 export default function ReviewForm({ productId, category }: ReviewFormProps) {
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(0); // Selected rating
+  const [hoverRating, setHoverRating] = useState(0); // For hover effect
   const [comment, setComment] = useState('');
   const queryClient = useQueryClient();
 
@@ -28,7 +30,7 @@ export default function ReviewForm({ productId, category }: ReviewFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (rating < 1 || rating > 5 || !comment.trim()) return;
+    if (rating < 1 || !comment.trim()) return;
 
     mutation.mutate({
       productId,
@@ -38,18 +40,33 @@ export default function ReviewForm({ productId, category }: ReviewFormProps) {
     });
   };
 
+  const renderStars = () => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <span
+          key={i}
+          onClick={() => setRating(i)}
+          onMouseEnter={() => setHoverRating(i)}
+          onMouseLeave={() => setHoverRating(0)}
+          className="cursor-pointer text-2xl"
+        >
+          {i <= (hoverRating || rating) ? (
+            <FaStar className="text-yellow-400" />
+          ) : (
+            <FaRegStar className="text-yellow-400" />
+          )}
+        </span>
+      );
+    }
+    return <div className="flex space-x-1">{stars}</div>;
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block">Rating (1-5):</label>
-        <input
-          type="number"
-          min="1"
-          max="5"
-          value={rating}
-          onChange={(e) => setRating(Number(e.target.value))}
-          className="border p-2 rounded w-full"
-        />
+        <label className="block">Rating:</label>
+        {renderStars()}
       </div>
       <div>
         <label className="block">Review:</label>
